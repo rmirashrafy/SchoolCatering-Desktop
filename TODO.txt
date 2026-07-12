@@ -1,0 +1,15 @@
+**Software Architecture (Offline Desktop App)**
+
+* Use a **3-Layer Architecture**:
+
+  * **UI Layer:** Windows, forms, buttons, and invoice display.
+  * **Business Logic Layer:** Handles calculations such as taxes, discounts, and total invoice amounts.
+  * **Data Layer:** Reads from and writes to the local database.
+
+* If your desktop framework supports it, use **MVVM** to keep the UI and logic separated. For older frameworks like WinForms, **MVP** is a good alternative.
+
+**Database**
+
+* Use an **embedded database** instead of a server-based one.
+* **SQLite** is the recommended choice because it is fast, lightweight, requires no installation, and stores all data in a single local file.
+* If using .NET, **LiteDB** is another simple embedded NoSQL option.
