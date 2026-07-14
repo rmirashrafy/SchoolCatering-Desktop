@@ -1,5 +1,7 @@
 import customtkinter as ctk
+from modules.receipt_ocr_handler import ReceiptOCRHandler
 import config
+
 
 class ExpensesTab(ctk.CTkScrollableFrame):
     def __init__(self, master):
@@ -12,6 +14,11 @@ class ExpensesTab(ctk.CTkScrollableFrame):
         # Main Title
         title_label = ctk.CTkLabel(self, text="Comprehensive Invoice & Expense Form", font=config.FONT_TITLE)
         title_label.pack(pady=15)
+
+        # --- خطوط جدید اضافه شده برای فعال‌سازی ماژول جدید ---
+        ocr_widget = ReceiptOCRHandler(self, parent_form=self)
+        ocr_widget.pack(padx=20, pady=15, fill="x")
+        # --------------------------------------------------
 
         # 1. Document Information Section
         doc_fields = [
