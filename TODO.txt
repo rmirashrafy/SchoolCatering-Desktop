@@ -13,3 +13,8 @@
 * Use an **embedded database** instead of a server-based one.
 * **SQLite** is the recommended choice because it is fast, lightweight, requires no installation, and stores all data in a single local file.
 * If using .NET, **LiteDB** is another simple embedded NoSQL option.
+
+
+
+یک نکته فنی مهم (Threading):
+ارتباط با API ممکن است چند ثانیه طول بکشد. اگر این کار را روی رشته (Thread) اصلی برنامه‌ی دسکتاپ انجام دهید، برنامه شما در طول زمان ارسال و دریافت عکس قفل (Freeze) می‌شود. حتماً عملیات ارسال درخواست به OpenAI را در یک رشته پس‌زمینه (Background Thread / Worker Thread) انجام دهید تا رابط کاربری برنامه روان باقی بماند و در این فاصله یک انیمیشن لودینگ به کاربر نشان داده شود.
