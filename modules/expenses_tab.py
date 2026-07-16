@@ -7,6 +7,10 @@ class ExpensesTab(ctk.CTkScrollableFrame):
     def __init__(self, master):
         super().__init__(master, width=950, height=650)
         self.item_rows = []  # Holds dynamic product/item rows
+        
+        # 🟢 یک دیکشنری برای ذخیره ارجاع به تمام فیلدهای ورودی فرم بر اساس نام فیلد
+        self.form_entries = {} 
+        
         self.setup_ui()
 
     def setup_ui(self):
@@ -25,19 +29,19 @@ class ExpensesTab(ctk.CTkScrollableFrame):
         self.create_section_box("2. Seller Information", config.SELLER_FIELDS)
 
         # 3. Buyer Information Section
-        self.create_section_box("3. Buyer Information", config.BUYER_FIELDS)
+        # self.create_section_box("3. Buyer Information", config.BUYER_FIELDS)
 
         # 4. Items Table Section (Dynamic Rows)
         self.create_dynamic_items_section()
 
         # 5. Payment Information Section
-        self.create_section_box("4. Payment Information", config.PAYMENT_FIELDS)
+        self.create_section_box("3. Payment Information", config.PAYMENT_FIELDS)
 
         # 6. Tax and Shipping Section
-        self.create_section_box("5. Tax & Shipping Information", config.TAX_SHIPPING_FIELDS)
+        #self.create_section_box("5. Tax & Shipping Information", config.TAX_SHIPPING_FIELDS)
 
         # 7. Specialized Fields Section (Gas Station / Restaurant)
-        self.create_specialized_section()
+        #self.create_specialized_section()
 
         # 8. Totals and Notes Section
         self.create_totals_notes_section()
@@ -75,6 +79,9 @@ class ExpensesTab(ctk.CTkScrollableFrame):
             else:
                 entry = ctk.CTkEntry(cell_frame, placeholder_text=placeholder)
             entry.pack(side="top", fill="x", padx=5, pady=2)
+            
+            # 🟢 ذخیره ارجاع ویجت ورودی در دیکشنری براساس برچسب (Label) آن به عنوان کلید یکتا
+            self.form_entries[label_text] = entry
 
     def create_dynamic_items_section(self):
         """Creates the dynamic items table within its own dedicated frame"""
@@ -227,6 +234,9 @@ class ExpensesTab(ctk.CTkScrollableFrame):
             else:
                 entry = ctk.CTkEntry(cell_frame, placeholder_text=placeholder)
             entry.pack(side="top", fill="x", padx=5, pady=2)
+            
+            # 🟢 ذخیره ارجاع به فیلدهای فرعی (مثل بخش پمپ‌بنزین، رستوران و مجموع‌ها)
+            self.form_entries[label_text] = entry
 
     def submit_invoice(self):
         print("Submitting invoice payload to the backend...")
