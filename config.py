@@ -63,11 +63,12 @@ DOCUMENT_FIELDS = [
     #("Confirmation / Ref Number:", "Transaction reference ID"),
     #("Invoice Type:", ["Purchase Invoice", "Sales Invoice", "Standard Receipt", "Tax Invoice", "Credit Note", "Debit Note"]),
     #("Status:", ["Draft", "Confirmed", "Voided"]),
-    ("Currency:", ["USD ($)", "EUR (€)", "IRR (Rial)", "AED (Dirham)","OM (Rial)"]),
-    ("Language:", ["English", "Persian", "Arabic"])
+    #("Currency:", ["USD ($)", "EUR (€)", "IRR (Rial)", "AED (Dirham)","OM (Rial)"]),
+    #("Language:", ["English", "Persian", "Arabic"])
 ]
 
 # 2. Seller Information Section
+'''
 SELLER_FIELDS = [
     ("Business / Company Name:", "e.g., Acme Corp"),
     #("Branch Name / Code:", "e.g., Main Branch / BR01"),
@@ -80,7 +81,7 @@ SELLER_FIELDS = [
     ("Full Address:", "Street, Building, Unit"),
     ("City / Country / Postal Code:", "Location details")
 ]
-
+'''
 # 3. Buyer Information Section
 '''
 BUYER_FIELDS = [
@@ -94,7 +95,7 @@ BUYER_FIELDS = [
     ("Delivery / Billing Address:", "Destination address")
 ]
 '''
-
+'''
 # 4. Payment Information Section
 PAYMENT_FIELDS = [
     ("Payment Method:", ["Cash", "POS Terminal", "Bank Transfer", "Cheque", "Credit", "Digital Wallet"]),
@@ -106,7 +107,7 @@ PAYMENT_FIELDS = [
     #("POS Terminal ID (TID):", "Device serial/terminal ID"),
     #("Cashier / Operator Name:", "Active user session")
 ]
-
+'''
 # 5. Tax and Shipping Section
 '''
 TAX_SHIPPING_FIELDS = [
@@ -139,10 +140,10 @@ RESTAURANT_FIELDS = [
 
 # 7. Totals Calculations
 TOTALS_FIELDS = [
-    ("Subtotal (Excl. Tax & Discount):", "0.00"),
-    ("Total Discounts:", "0.00"),
-    ("Total VAT / Taxes:", "0.00"),
-    ("Handling / Service Fees:", "0.00"),
-    ("Delivery / Freight Fees:", "0.00"),
+    #("Subtotal (Excl. Tax & Discount):", "0.00"),
+    #("Total Discounts:", "0.00"),
+    #("Total VAT / Taxes:", "0.00"),
+    #("Handling / Service Fees:", "0.00"),
+    #("Delivery / Freight Fees:", "0.00"),
     ("Grand Total (Due Amount):", "0.00")
 ]
