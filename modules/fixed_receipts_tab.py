@@ -28,11 +28,15 @@ class FixedReceiptsTab(ctk.CTkFrame):
         self.form_title = ctk.CTkLabel(self.form_frame, text="Create New Receipt", font=("Arial", 18, "bold"))
         self.form_title.pack(pady=15)
 
-        # Select Receipt Type
+        # Select Receipt Type (Added "Worker Salary")
         self.type_label = ctk.CTkLabel(self.form_frame, text="Receipt Type:")
         self.type_label.pack(anchor="w", padx=20, pady=2)
-        self.type_select = ctk.CTkOptionMenu(self.form_frame, values=["Water", "Electricity", "Gas", "Rent"])
+        self.type_select = ctk.CTkOptionMenu(self.form_frame, values=["Water", "Electricity", "Gas", "Rent", "Worker Salary"], command=self.toggle_worker_field)
         self.type_select.pack(fill="x", padx=20, pady=5)
+
+        # --- Worker Name Field (Hidden by default) ---
+        self.worker_label = ctk.CTkLabel(self.form_frame, text="Worker Name:")
+        self.worker_entry = ctk.CTkEntry(self.form_frame, placeholder_text="e.g. John Doe")
 
         # Enter Amount
         self.amount_label = ctk.CTkLabel(self.form_frame, text="Amount:")
@@ -72,8 +76,36 @@ class FixedReceiptsTab(ctk.CTkFrame):
         self.scrollable_list = ctk.CTkScrollableFrame(self.list_frame, width=380, height=450)
         self.scrollable_list.pack(padx=10, pady=10, fill="both", expand=True)
 
+    def toggle_worker_field(self, choice):
+        """Shows or hides the worker name field based on choice."""
+        if choice == "Worker Salary":
+            # Pack it right under the option menu (before amount fields)
+            self.worker_label.pack(anchor="w", padx=20, pady=2)
+            self.worker_entry.pack(fill="x", padx=20, pady=5)
+            
+            # Repack underlying widgets to maintain the top-to-bottom layout order
+            self.amount_label.pack_forget()
+            self.amount_entry.pack_forget()
+            self.date_label.pack_forget()
+            self.date_entry.pack_forget()
+            self.image_label.pack_forget()
+            self.upload_btn.pack_forget()
+            self.file_path_label.pack_forget()
+            self.submit_btn.pack_forget()
+
+            self.amount_label.pack(anchor="w", padx=20, pady=2)
+            self.amount_entry.pack(fill="x", padx=20, pady=5)
+            self.date_label.pack(anchor="w", padx=20, pady=2)
+            self.date_entry.pack(fill="x", padx=20, pady=5)
+            self.image_label.pack(anchor="w", padx=20, pady=2)
+            self.upload_btn.pack(fill="x", padx=20, pady=5)
+            self.file_path_label.pack(anchor="w", padx=20, pady=2)
+            self.submit_btn.pack(fill="x", padx=20, pady=25)
+        else:
+            self.worker_label.pack_forget()
+            self.worker_entry.pack_forget()
+
     def upload_image(self):
-        # Open file dialog to choose an image
         file_types = [('Image Files', '*.png *.jpg *.jpeg *.bmp')]
         file_path = filedialog.askopenfilename(title="Select Receipt Image", filetypes=file_types)
         
@@ -86,13 +118,18 @@ class FixedReceiptsTab(ctk.CTkFrame):
         receipt_type = self.type_select.get()
         amount = self.amount_entry.get().strip()
         date = self.date_entry.get().strip()
+        worker_name = self.worker_entry.get().strip() if receipt_type == "Worker Salary" else None
 
+        # Validation
         if not amount or not date:
             messagebox.showerror("Error", "Please fill in all fields.")
             return
+        
+        if receipt_type == "Worker Salary" and not worker_name:
+            messagebox.showerror("Error", "Please enter the worker's name.")
+            return
 
         saved_img_name = "No Image"
-        # Copy image to program directory if selected
         if self.selected_image_path:
             extension = os.path.splitext(self.selected_image_path)[1]
             safe_date = date.replace("/", "-")
@@ -104,9 +141,10 @@ class FixedReceiptsTab(ctk.CTkFrame):
                 messagebox.showerror("Image Save Error", str(e))
                 return
 
-        # Store in list
+        # Store in list (Added worker field)
         receipt_data = {
             "type": receipt_type,
+            "worker_name": worker_name,
             "amount": amount,
             "date": date,
             "image": saved_img_name
@@ -116,24 +154,31 @@ class FixedReceiptsTab(ctk.CTkFrame):
         # Reset Form
         self.amount_entry.delete(0, 'end')
         self.date_entry.delete(0, 'end')
+        self.worker_entry.delete(0, 'end')
         self.file_path_label.configure(text="No image selected", text_color="gray")
         self.selected_image_path = None
+        
+        # Hide worker field after saving
+        self.type_select.set("Water")
+        self.toggle_worker_field("Water")
 
         # Update List UI
         self.update_receipts_list()
         messagebox.showinfo("Success", "Receipt saved successfully.")
 
     def update_receipts_list(self):
-        # Clear existing widgets in scrollable list
         for widget in self.scrollable_list.winfo_children():
             widget.destroy()
 
-        # Render receipts list (newest on top)
         for receipt in reversed(self.saved_receipts):
             item_frame = ctk.CTkFrame(self.scrollable_list, fg_color="#2b2b2b", corner_radius=8)
             item_frame.pack(fill="x", padx=5, pady=5)
 
-            # Receipt info aligned to left
-            info_text = f"Type: {receipt['type']} | Amount: {receipt['amount']} | Date: {receipt['date']}\nImage: {receipt['image']}"
+            # Conditional display for Worker Name in history list
+            if receipt['type'] == "Worker Salary":
+                info_text = f"Type: {receipt['type']} (Worker: {receipt['worker_name']}) | Amount: {receipt['amount']} | Date: {receipt['date']}\nImage: {receipt['image']}"
+            else:
+                info_text = f"Type: {receipt['type']} | Amount: {receipt['amount']} | Date: {receipt['date']}\nImage: {receipt['image']}"
+                
             info_label = ctk.CTkLabel(item_frame, text=info_text, justify="left", anchor="w")
             info_label.pack(side="left", padx=10, pady=10)
