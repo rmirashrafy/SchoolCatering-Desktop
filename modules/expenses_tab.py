@@ -26,7 +26,7 @@ class ExpensesTab(ctk.CTkScrollableFrame):
         self.create_section_box("1. Document Information", config.DOCUMENT_FIELDS)
 
         # 2. Seller Information Section
-        self.create_section_box("2. Seller Information", config.SELLER_FIELDS)
+        #self.create_section_box("2. Seller Information", config.SELLER_FIELDS)
 
         # 3. Buyer Information Section
         # self.create_section_box("3. Buyer Information", config.BUYER_FIELDS)
@@ -35,7 +35,7 @@ class ExpensesTab(ctk.CTkScrollableFrame):
         self.create_dynamic_items_section()
 
         # 5. Payment Information Section
-        self.create_section_box("3. Payment Information", config.PAYMENT_FIELDS)
+        #self.create_section_box("2. Payment Information", config.PAYMENT_FIELDS)
 
         # 6. Tax and Shipping Section
         #self.create_section_box("5. Tax & Shipping Information", config.TAX_SHIPPING_FIELDS)
@@ -208,10 +208,10 @@ class ExpensesTab(ctk.CTkScrollableFrame):
         self.notes_txt = ctk.CTkTextbox(notes_frame, height=100)
         self.notes_txt.pack(fill="x", padx=10, pady=5)
 
-        lbl_terms = ctk.CTkLabel(notes_frame, text="Terms and Conditions / Footer Message:", font=config.FONT_LABEL)
-        lbl_terms.pack(anchor="w", padx=10, pady=5)
-        self.terms_txt = ctk.CTkTextbox(notes_frame, height=80)
-        self.terms_txt.pack(fill="x", padx=10, pady=5)
+        # lbl_terms = ctk.CTkLabel(notes_frame, text="Terms and Conditions / Footer Message:", font=config.FONT_LABEL)
+        # lbl_terms.pack(anchor="w", padx=10, pady=5)
+        # self.terms_txt = ctk.CTkTextbox(notes_frame, height=80)
+        # self.terms_txt.pack(fill="x", padx=10, pady=5)
 
     def create_grid_fields_sub(self, parent_frame, fields):
         """Sub-helper method to populate sub-frames dynamically without outer margin overlaps"""
