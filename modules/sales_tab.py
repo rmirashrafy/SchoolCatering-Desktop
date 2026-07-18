@@ -72,6 +72,7 @@ class SalesTab(ctk.CTkFrame):
         )
         add_card.grid(row=row, column=col, padx=15, pady=15, sticky="nsew")
 
+    
     def add_new_school(self):
         """باز کردن یک دیالوگ برای گرفتن نام مدرسه جدید"""
         school_name = simpledialog.askstring("New School", "Enter school name:")
@@ -82,6 +83,7 @@ class SalesTab(ctk.CTkFrame):
             elif school_name:
                 self.schools_data[school_name] = {"expenses": [], "returns": [], "sales": []}
                 self.show_schools_grid()
+    
 
     def open_school_dashboard(self, school_name):
         """باز کردن داشبورد اختصاصی مدرسه انتخاب شده"""
