@@ -11,3 +11,5 @@ pip install pillow
 pip install pytesseract
 
 pip install openai
+
+pip install weasyprint
