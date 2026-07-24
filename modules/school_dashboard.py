@@ -1,5 +1,6 @@
 import customtkinter as ctk
 from modules.sales_invoice_table import SalesInvoiceTable
+from modules.school_expenses_view import SchoolExpensesView  # وارد کردن ماژول جدید مخارج
 
 class SchoolDashboard(ctk.CTkFrame):
     def __init__(self, master, school_name, school_data, back_callback):
@@ -7,12 +8,19 @@ class SchoolDashboard(ctk.CTkFrame):
         self.master = master
         self.school_name = school_name
         self.school_data = school_data
-        self.back_callback = back_callback  # بازگشت به منوی مدارس
+        self.back_callback = back_callback
+
+        # مطمئن شدن از وجود تمام ساختارهای داده‌ای لازم
+        if "sales" not in self.school_data:
+            self.school_data["sales"] = []
+        if "returns" not in self.school_data:
+            self.school_data["returns"] = []
+        if "expenses" not in self.school_data:
+            self.school_data["expenses"] = []
 
         self.setup_ui()
 
     def setup_ui(self):
-        # پاک کردن المان‌های قدیمی برای رندر مجدد بدون باگ
         for widget in self.winfo_children():
             widget.destroy()
 
@@ -36,41 +44,62 @@ class SchoolDashboard(ctk.CTkFrame):
 
         # ۱. مربع مخارج
         btn_expenses = ctk.CTkButton(
-            menu_frame, text="Expenses\n(مخارج)", font=("Arial", 16, "bold"),
+            menu_frame, text="Expenses\n", font=("Arial", 16, "bold"),
             fg_color="#c0392b", hover_color="#e74c3c", command=self.open_expenses
         )
         btn_expenses.grid(row=0, column=0, padx=15, pady=20, sticky="nsew")
 
         # ۲. مربع برگشتی‌ها
         btn_returns = ctk.CTkButton(
-            menu_frame, text="Returns\n(برگشتی‌ها)", font=("Arial", 16, "bold"),
+            menu_frame, text="Returns\n", font=("Arial", 16, "bold"),
             fg_color="#d35400", hover_color="#e67e22", command=self.open_returns
         )
         btn_returns.grid(row=0, column=1, padx=15, pady=20, sticky="nsew")
 
         # ۳. مربع فروش‌ها
         btn_sales = ctk.CTkButton(
-            menu_frame, text="Sales / Invoice\n(فروش‌ها)", font=("Arial", 16, "bold"),
+            menu_frame, text="Sales / Invoice\n", font=("Arial", 16, "bold"),
             fg_color="#27ae60", hover_color="#2ecc71", command=self.open_sales
         )
         btn_sales.grid(row=0, column=2, padx=15, pady=20, sticky="nsew")
 
     def open_expenses(self):
-        pass
+        """باز کردن مدیریت مخارج و رسیدهای مدرسه"""
+        for widget in self.winfo_children():
+            widget.destroy()
+        
+        expenses_view = SchoolExpensesView(
+            self, 
+            self.school_name, 
+            self.school_data["expenses"], 
+            back_to_dashboard_callback=self.setup_ui
+        )
+        expenses_view.pack(fill="both", expand=True)
 
     def open_returns(self):
-        pass
+        """باز کردن جدول فاکتور کالاهای برگشتی"""
+        for widget in self.winfo_children():
+            widget.destroy()
+        
+        returns_view = SalesInvoiceTable(
+            self, 
+            self.school_name, 
+            self.school_data["returns"], 
+            back_to_dashboard_callback=self.setup_ui,
+            invoice_type="Returns"
+        )
+        returns_view.pack(fill="both", expand=True)
 
     def open_sales(self):
         """باز کردن جدول فاکتور فروش"""
         for widget in self.winfo_children():
             widget.destroy()
         
-        # ارسال متد setup_ui به عنوان بازگشت برای حل مشکل دکمه بک فاکتور
         invoice_view = SalesInvoiceTable(
             self, 
             self.school_name, 
             self.school_data["sales"], 
-            back_to_dashboard_callback=self.setup_ui
+            back_to_dashboard_callback=self.setup_ui,
+            invoice_type="Sales"
         )
         invoice_view.pack(fill="both", expand=True)
