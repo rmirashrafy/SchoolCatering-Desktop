@@ -4,11 +4,12 @@ import config
 import os
 
 class SalesInvoiceTable(ctk.CTkFrame):
-    def __init__(self, master, school_name, sales_list, back_to_dashboard_callback):
+    def __init__(self, master, school_name, items_list, back_to_dashboard_callback, invoice_type="Sales"):
         super().__init__(master, fg_color="transparent")
         self.school_name = school_name
-        self.sales_list = sales_list  # متصل به لیست مرجع اصلی داده‌ها
+        self.sales_list = items_list  # لیست مرجع داده‌ها (فروش یا برگشتی)
         self.back_callback = back_to_dashboard_callback
+        self.invoice_type = invoice_type  # نوع فاکتور: "Sales" یا "Returns"
         
         self.edit_mode = False
         self.checkbox_vars = {}
@@ -24,10 +25,12 @@ class SalesInvoiceTable(ctk.CTkFrame):
         back_btn = ctk.CTkButton(header_frame, text="← Back to Dashboard", width=140, command=self.back_callback)
         back_btn.pack(side="left")
 
-        title = ctk.CTkLabel(header_frame, text=f"Sales Invoice - {self.school_name}", font=("Arial", 16, "bold"))
+        # عنوان تغییرپذیر بر اساس نوع فاکتور
+        title_text = f"{self.invoice_type} Invoice - {self.school_name}"
+        title = ctk.CTkLabel(header_frame, text=title_text, font=("Arial", 16, "bold"))
         title.pack(side="right", padx=10)
 
-        # دکمه ویرایش ساختاری (Edit / Done)
+        # دکمه ویرایش ساختاری
         self.edit_btn = ctk.CTkButton(header_frame, text="Edit", width=80, fg_color="#2980b9", hover_color="#3498db", command=self.toggle_edit_mode)
         self.edit_btn.pack(side="right", padx=10)
 
@@ -59,16 +62,16 @@ class SalesInvoiceTable(ctk.CTkFrame):
         self.table_frame = ctk.CTkScrollableFrame(self)
         self.table_frame.pack(fill="both", expand=True, padx=10, pady=5)
 
-        # ---- بخش پایین صفحه (دکمه ذخیره کلی و پرینت فاکتور) ----
+        # ---- بخش پایین صفحه ----
         self.footer_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.footer_frame.pack(fill="x", padx=10, pady=10)
 
         self.save_print_btn = ctk.CTkButton(
             self.footer_frame, 
-            text="Save & Print Invoice (PDF) / ثبت و پرینت فاکتور", 
+            text=f"Save & Print {self.invoice_type} Invoice (PDF)", 
             font=("Arial", 14, "bold"),
-            fg_color="#16a085", 
-            hover_color="#1abc9c", 
+            fg_color="#16a085" if self.invoice_type == "Sales" else "#d35400", 
+            hover_color="#1abc9c" if self.invoice_type == "Sales" else "#e67e22", 
             height=40,
             command=self.save_all_and_print
         )
@@ -137,12 +140,10 @@ class SalesInvoiceTable(ctk.CTkFrame):
             ctk.CTkLabel(self.table_frame, text=f"{item['total']:,.3f}").grid(row=row_idx, column=start_col+4, sticky="nsew", pady=2)
 
     def save_all_and_print(self):
-        """ذخیره دسته‌جمعی مقادیر عددی فیلد تعداد و خروجی رسمی PDF"""
         if not self.sales_list:
             messagebox.showwarning("Empty Invoice", "There are no items in the invoice to save or print.")
             return
 
-        # ۱. خواندن و بررسی صحت تمامی فیلدهای تعداد
         for idx, qty_widget in self.qty_entries.items():
             qty_str = qty_widget.get().strip()
             try:
@@ -153,22 +154,17 @@ class SalesInvoiceTable(ctk.CTkFrame):
                 messagebox.showerror("Error", f"Invalid quantity in row {idx+1}. Must be a positive integer.")
                 return
             
-            # بروزرسانی مقادیر در آرایه اصلی مرجع
             item = self.sales_list[idx]
             item["qty"] = new_qty
             item["total"] = new_qty * float(item["price"])
 
-        # رندر مجدد جدول برای نمایش عددهای فاکتور نهایی شده
         self.render_table()
 
-        # ۲. اسکریپت ساخت فاکتور PDF تمیز و شکیل با WeasyPrint
         try:
             from weasyprint import HTML
             
-            # محاسبه جمع کل کل فاکتور
             grand_total = sum(item["total"] for item in self.sales_list)
             
-            # ایجاد قالب ساختاریافته HTML برای تبدیل به PDF رسمی فاکتور
             html_rows = ""
             for idx, item in enumerate(self.sales_list, start=1):
                 html_rows += f"""
@@ -188,67 +184,21 @@ class SalesInvoiceTable(ctk.CTkFrame):
             <head>
                 <meta charset="utf-8">
                 <style>
-                    @page {{
-                        size: A4;
-                        margin: 20mm 15mm;
-                        background-color: #ffffff;
-                    }}
-                    body {{
-                        font-family: 'Arial', sans-serif;
-                        color: #333333;
-                        direction: ltr;
-                    }}
-                    .header {{
-                        border-bottom: 2px solid #2c3e50;
-                        padding-bottom: 10px;
-                        margin-bottom: 30px;
-                    }}
-                    .title {{
-                        font-size: 24pt;
-                        font-weight: bold;
-                        color: #2c3e50;
-                        margin: 0;
-                    }}
-                    .meta-info {{
-                        margin-top: 10px;
-                        font-size: 11pt;
-                        color: #7f8c8d;
-                    }}
-                    table {{
-                        width: 100%;
-                        border-collapse: collapse;
-                        margin-top: 20px;
-                    }}
-                    th {{
-                        background-color: #2c3e50;
-                        color: #ffffff;
-                        font-weight: bold;
-                        padding: 10px;
-                        font-size: 11pt;
-                        text-align: left;
-                    }}
-                    td {{
-                        padding: 10px;
-                        border-bottom: 1px solid #bdc3c7;
-                        font-size: 11pt;
-                    }}
-                    .total-row {{
-                        font-weight: bold;
-                        background-color: #ecf0f1;
-                    }}
-                    .footer {{
-                        margin-top: 50px;
-                        text-align: center;
-                        font-size: 10pt;
-                        color: #95a5a6;
-                        border-top: 1px solid #bdc3c7;
-                        padding-top: 10px;
-                    }}
+                    @page {{ size: A4; margin: 20mm 15mm; background-color: #ffffff; }}
+                    body {{ font-family: 'Arial', sans-serif; color: #333333; direction: ltr; }}
+                    .header {{ border-bottom: 2px solid #2c3e50; padding-bottom: 10px; margin-bottom: 30px; }}
+                    .title {{ font-size: 24pt; font-weight: bold; color: #2c3e50; margin: 0; }}
+                    .meta-info {{ margin-top: 10px; font-size: 11pt; color: #7f8c8d; }}
+                    table {{ width: 100%; border-collapse: collapse; margin-top: 20px; }}
+                    th {{ background-color: #2c3e50; color: #ffffff; font-weight: bold; padding: 10px; font-size: 11pt; text-align: left; }}
+                    td {{ padding: 10px; border-bottom: 1px solid #bdc3c7; font-size: 11pt; }}
+                    .total-row {{ font-weight: bold; background-color: #ecf0f1; }}
+                    .footer {{ margin-top: 50px; text-align: center; font-size: 10pt; color: #95a5a6; border-top: 1px solid #bdc3c7; padding-top: 10px; }}
                 </style>
             </head>
             <body>
                 <div class="header">
-                    <div class="title">SALES INVOICE  </div>
+                    <div class="title">{self.invoice_type.upper()} INVOICE</div>
                     <div class="meta-info">
                         <strong>School Name:</strong> {self.school_name}<br>
                         <strong>Status:</strong> Final & Saved
@@ -282,14 +232,13 @@ class SalesInvoiceTable(ctk.CTkFrame):
             </html>
             """
             
-            # ذخیره و کامپایل فایل
-            pdf_filename = f"Invoice_{self.school_name.replace(' ', '_')}.pdf"
+            # نام فایل خروجی PDF بر اساس فروش یا برگشتی بودن
+            pdf_filename = f"{self.invoice_type}_Invoice_{self.school_name.replace(' ', '_')}.pdf"
             HTML(string=html_content).write_pdf(pdf_filename)
             
             messagebox.showinfo("Success", f"All changes saved successfully!\nInvoice printed to: {os.path.abspath(pdf_filename)}")
             
         except ImportError:
-            # اگر کتابخانه WeasyPrint نصب نباشد، تغییرات را با موفقیت ذخیره می‌کند اما هشدار نصب را می‌دهد
             messagebox.showinfo("Saved", "All quantities updated and saved successfully in memory!\n(Note: Install 'weasyprint' to enable PDF printing feature.)")
         except Exception as e:
             messagebox.showerror("Error", f"Saved successfully, but failed to print PDF: {str(e)}")
