@@ -46,3 +46,30 @@
 ایده اتصال به نوعی از ربات تلگرام برای گرفتن گزارش
 
 ایده برای بخش بک اپ گیری پیام دستگاه را متصل کنید دکمه کپی و تمام 
+
+
+@startuml
+
+class Main {
+    +start_app()
+    +load_data()
+    +create_invoice()
+}
+
+class Config {
+    +load_config()
+    +save_config()
+}
+
+class InvoiceGenerator {
+    +create_invoice()
+    +save_pdf()
+}
+
+Main --> Config
+Main --> InvoiceGenerator
+
+@enduml
+
+
+plantuml.com
